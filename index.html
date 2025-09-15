@@ -115,70 +115,12 @@
 
         console.log('Attempting to open:', schemeUrl);
 
-        const userAgent = navigator.userAgent;
-        let appOpened = false;
-
-        // Listen for page visibility changes (indicates app opened)
-        const handleVisibilityChange = () => {
-          if (document.hidden) {
-            appOpened = true;
-          }
-        };
-
-        const handleBlur = () => {
-          appOpened = true;
-        };
-
-        // Listen for focus back to page (user declined to open app)
-        const handleFocus = () => {
-          if (!appOpened) {
-            // User declined, hide spinner and show buttons
-            document.querySelector('.spinner').style.display = 'none';
-            document.querySelector('h1').textContent = 'Get the Baytiraqi App';
-            document.querySelector('p').textContent =
-              'Download the app to view this property:';
-            document.getElementById('fallback').style.display = 'block';
-          }
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('blur', handleBlur);
-        window.addEventListener('focus', handleFocus);
-
         // Try to open the app using window.location (this will work silently if app is installed)
         try {
           window.location.href = schemeUrl;
         } catch (e) {
-          // Ignore any errors
+          // Ignore any errors - just show the download page
         }
-
-        // After 500ms, if app didn't open, redirect immediately
-        setTimeout(() => {
-          document.removeEventListener(
-            'visibilitychange',
-            handleVisibilityChange
-          );
-          window.removeEventListener('blur', handleBlur);
-          window.removeEventListener('focus', handleFocus);
-
-          if (!appOpened) {
-            if (/iPad|iPhone|iPod/.test(userAgent)) {
-              console.log('Redirecting to iOS App Store');
-              window.location.href = iosStore;
-            } else if (/Android/.test(userAgent)) {
-              console.log('Redirecting to Google Play Store');
-              window.location.href = androidStore;
-            } else {
-              console.log('Desktop detected, showing fallback buttons');
-              document.querySelector('.spinner').style.display = 'none';
-              document.querySelector('h1').textContent =
-                'Get the Baytiraqi App';
-              document.querySelector('p').textContent =
-                'Download the app to view this property:';
-              document.getElementById('fallback').style.display = 'block';
-            }
-          }
-        }, 500);
       }
 
       window.onload = openApp;
@@ -187,11 +129,10 @@
   <body>
     <div class="container">
       <div class="logo">B</div>
-      <div class="spinner"></div>
-      <h1>Opening in Baytiraqi…</h1>
-      <p>Opening your property in the Baytiraqi app...</p>
+      <h1>Get the Baytiraqi App</h1>
+      <p>Download the app to view this property:</p>
 
-      <div id="fallback" style="display: none">
+      <div id="fallback">
         <p>Don't have the app yet?</p>
         <a
           class="button"
