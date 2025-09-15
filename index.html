@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -6,8 +6,8 @@
     <title>Open in Baytiraqi</title>
     <style>
       body {
-        font-family:
-          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          sans-serif;
         text-align: center;
         padding: 3rem 1rem;
         background: linear-gradient(135deg, #cf113b 0%, #8b0a29 100%);
@@ -107,35 +107,56 @@
         // Build the custom scheme URL with all query params
         const schemeUrl = `baytiraqi://(pages)/property/${propertyId}${window.location.search}`;
 
-        // Store URLs (replace with your actual IDs)
+        // Store URLs
         const iosStore =
           'https://apps.apple.com/gb/app/baytiraqi-real-estate-in-iraq/id6502549420';
         const androidStore =
-          'https://play.google.com/store/apps/details?id=com.baytiraqi.main';
+          'https://play.google.com/store/apps/details?id=com.baytiraqi.main&pcampaignid';
 
         console.log('Attempting to open:', schemeUrl);
 
-        const now = Date.now();
+        const userAgent = navigator.userAgent;
+        let appOpened = false;
 
-        // Try to open the app
-        window.location = schemeUrl;
+        // Create a hidden iframe to attempt the app launch
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = schemeUrl;
+        document.body.appendChild(iframe);
 
-        // After 800ms, if app didn't open, redirect to store
+        // Clean up the iframe after a short delay
         setTimeout(() => {
-          if (Date.now() - now < 1500) {
-            const userAgent = navigator.userAgent;
+          document.body.removeChild(iframe);
+        }, 100);
+
+        // Listen for page visibility changes (indicates app opened)
+        const handleVisibilityChange = () => {
+          if (document.hidden) {
+            appOpened = true;
+          }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        // After 1.5 seconds, if app didn't open, show fallback
+        setTimeout(() => {
+          document.removeEventListener(
+            'visibilitychange',
+            handleVisibilityChange
+          );
+
+          if (!appOpened) {
             if (/iPad|iPhone|iPod/.test(userAgent)) {
               console.log('Redirecting to iOS App Store');
-              window.location = iosStore;
+              window.location.href = iosStore;
             } else if (/Android/.test(userAgent)) {
               console.log('Redirecting to Google Play Store');
-              window.location = androidStore;
+              window.location.href = androidStore;
             } else {
               console.log('Desktop detected, showing fallback buttons');
               document.getElementById('fallback').style.display = 'block';
             }
           }
-        }, 800);
+        }, 1500);
       }
 
       window.onload = openApp;
@@ -157,7 +178,7 @@
         >
         <a
           class="button"
-          href="https://play.google.com/store/apps/details?id=com.baytiraqi.main"
+          href="https://play.google.com/store/apps/details?id=com.baytiraqi.main&pcampaignid"
           >🤖 Get it on Google Play</a
         >
       </div>
